@@ -1,0 +1,70 @@
+{
+  "Version": "2019-10-30",
+  "StartAction": "SetVoice",
+  "Actions": [
+    {
+      "Identifier": "SetVoice",
+      "Type": "SetVoice",
+      "Parameters": {
+        "GlobalVoice": {
+          "Language": "en-US",
+          "Voice": "Joanna"
+        }
+      },
+      "Transitions": {
+        "NextAction": "PlayGreeting"
+      }
+    },
+    {
+      "Identifier": "PlayGreeting",
+      "Type": "MessageParticipant",
+      "Parameters": {
+        "Text": "Hello, this is an automated appointment service calling for $.Attributes.CustomerName.",
+        "TextToSpeechType": "text"
+      },
+      "Transitions": {
+        "NextAction": "PlayPrompt"
+      }
+    },
+    {
+      "Identifier": "PlayPrompt",
+      "Type": "MessageParticipant",
+      "Parameters": {
+        "Text": "$.Attributes.AppointmentMessage",
+        "TextToSpeechType": "text"
+      },
+      "Transitions": {
+        "NextAction": "GetDigits"
+      }
+    },
+    {
+      "Identifier": "GetDigits",
+      "Type": "GetParticipantInput",
+      "Parameters": {
+        "Text": "Press 1 to confirm, press 2 to reschedule, or press 3 to speak to an agent.",
+        "MaxLength": 1,
+        "Timeout": 10
+      },
+      "Transitions": {
+        "NextAction": "CheckDigits"
+      }
+    },
+    {
+      "Identifier": "CheckDigits",
+      "Type": "Compare",
+      "Parameters": {
+        "ComparisonValue": "$.StoredDigits",
+        "Comparison": "Equals"
+      },
+      "Transitions": {
+        "NextAction": "Disconnect"
+      }
+    },
+    {
+      "Identifier": "Disconnect",
+      "Type": "DisconnectParticipant",
+      "Parameters": {},
+      "Transitions": {}
+    }
+  ]
+}
