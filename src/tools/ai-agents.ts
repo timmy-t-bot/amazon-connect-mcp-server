@@ -5,7 +5,8 @@ export function aiAgentTools(_client: ConnectClientWrapper): ConnectTool[] {
   return [
     {
       name: 'create_ai_agent',
-      description: 'Create a new Bedrock AgentCore agent configured for Amazon Connect.',
+      description:
+        'Create a new Amazon Bedrock AgentCore agent for autonomous voice/chat conversations. NOTE: This is different from Amazon Connect native AI agents (qconnect), which are for agent assistance.',
       inputSchema: {
         type: 'object',
         properties: {
@@ -32,7 +33,7 @@ export function aiAgentTools(_client: ConnectClientWrapper): ConnectTool[] {
                   description: args.description,
                   instruction: args.instruction,
                   foundation_model: args.foundation_model ?? 'anthropic.claude-3-5-sonnet-20241022-v2:0',
-                  note: 'Agent created in Bedrock AgentCore. Associate it with a Connect contact flow to enable voice conversations.',
+                  note: 'Bedrock AgentCore agent created. Associate it with a Connect contact flow to enable autonomous voice conversations.',
                 },
                 null,
                 2
@@ -44,7 +45,8 @@ export function aiAgentTools(_client: ConnectClientWrapper): ConnectTool[] {
     },
     {
       name: 'list_ai_agents',
-      description: 'List configured AI agents (Bedrock AgentCore) in the account.',
+      description:
+        'List configured Bedrock AgentCore agents in the account. NOTE: Amazon Connect also has native AI agents (qconnect) for agent assistance; these are separate.',
       inputSchema: {
         type: 'object',
         properties: {},
@@ -81,7 +83,7 @@ export function aiAgentTools(_client: ConnectClientWrapper): ConnectTool[] {
     {
       name: 'invoke_ai_agent',
       description:
-        'Trigger an AI agent for a conversation. The agent will call the customer and handle the conversation autonomously.',
+        'Trigger a Bedrock AgentCore agent for an autonomous conversation. The agent will call the customer and handle the conversation end-to-end.',
       inputSchema: {
         type: 'object',
         properties: {
@@ -109,7 +111,7 @@ export function aiAgentTools(_client: ConnectClientWrapper): ConnectTool[] {
                   agent_id: args.agent_id,
                   phone_number: args.phone_number,
                   message:
-                    'AI agent conversation initiated. Full Bedrock AgentCore runtime integration is required for live conversation handling.',
+                    'Bedrock AgentCore conversation initiated. Full runtime integration is required for live autonomous conversation handling.',
                 },
                 null,
                 2

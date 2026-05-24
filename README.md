@@ -83,6 +83,17 @@ Amazon Connect Instance
     └── Outbound Campaigns
 ```
 
+## Important: Two Types of "AI Agents"
+
+This MCP server works with **Bedrock AgentCore** agents for autonomous AI conversations (outbound calls, appointment booking, etc.). These are different from Amazon Connect's native AI agents (Amazon Q in Connect), which are designed for agent assistance (answer recommendations, knowledge search, etc.) and are managed via the `qconnect` API.
+
+| Feature | Bedrock AgentCore | Amazon Connect Native AI |
+|---------|-------------------|-------------------------|
+| Use case | Autonomous voice/chat conversations | Agent assistance during contacts |
+| API | `bedrock-agent` | `qconnect` |
+| Handles full calls | Yes | No (assists human agents) |
+| Requires | Bedrock AgentCore Gateway | Amazon Q in Connect license |
+
 ## Requirements
 
 - Node.js 18+
