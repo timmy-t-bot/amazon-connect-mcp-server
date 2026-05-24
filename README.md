@@ -52,10 +52,10 @@ Once connected, your AI agent can:
 - **invoke_bedrock_agent** - Trigger an autonomous agent to call and converse
 - **list_bedrock_agents** - List configured Bedrock agents
 
-### Connect Native AI (Agent Assistance)
-- **create_connect_ai_agent** - Create an Amazon Q in Connect AI agent
-- **list_connect_ai_agents** - List native AI agents by assistant
-- **update_connect_ai_agent** - Publish or set defaults for native AI agents
+### Connect AI Agents
+- **create_connect_ai_agent** - Create a Connect AI agent
+- **list_connect_ai_agents** - List Connect AI agents by assistant
+- **update_connect_ai_agent** - Publish or set defaults for Connect AI agents
 
 ### Appointments & Reminders
 - **schedule_reminder** - Schedule an outbound reminder call or SMS
@@ -92,15 +92,15 @@ Amazon Connect Instance
 
 This MCP server supports **both** types of AWS AI agents, and they can work together:
 
-| Feature | Bedrock AgentCore | Amazon Connect Native AI (Amazon Q) |
+| Feature | Bedrock AgentCore | Connect AI Agents |
 |---------|-------------------|-------------------------------------|
 | Use case | Autonomous voice/chat conversations, tool use | Speech-to-speech, self-service, agent assistance, orchestration |
 | API | `bedrock-agent` | `qconnect` |
 | Handles full calls | Yes | Yes (speech-to-speech, self-service) |
 | 3rd party agents | Yes (native) | Yes (via Bedrock AgentCore Gateways) |
-| Requires | Bedrock AgentCore Gateway | Amazon Q in Connect license |
+| Requires | Bedrock AgentCore Gateway | Connect AI Agents license |
 
-**Key insight:** Amazon Q in Connect is not just for agent assistance. It supports speech-to-speech self-service conversations (no human agent needed) and can invoke 3rd party Bedrock AgentCore agents via Gateways. Use Bedrock AgentCore for complex tool-based workflows, and Connect native AI for speech-to-speech and self-service use cases.
+**Key insight:** Connect AI agents support speech-to-speech self-service conversations (no human agent needed), agent assistance, orchestration, and can invoke 3rd party Bedrock AgentCore agents via Gateways. Use Bedrock AgentCore for complex tool-based workflows, and Connect AI agents for speech-to-speech and self-service use cases.
 
 ## Requirements
 
