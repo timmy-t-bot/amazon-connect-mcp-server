@@ -47,10 +47,15 @@ Once connected, your AI agent can:
 - **schedule_callback** - Schedule a callback at a specific time
 - **transfer_to_agent** - Transfer an active contact to a human agent queue
 
-### AI Agents
-- **create_ai_agent** - Create a Bedrock AgentCore agent
-- **invoke_ai_agent** - Trigger an AI agent for a conversation
-- **list_ai_agents** - List configured AI agents
+### Bedrock AgentCore (Autonomous AI Agents)
+- **create_bedrock_agent** - Create a Bedrock AgentCore agent for full conversations
+- **invoke_bedrock_agent** - Trigger an autonomous agent to call and converse
+- **list_bedrock_agents** - List configured Bedrock agents
+
+### Connect Native AI (Agent Assistance)
+- **create_connect_ai_agent** - Create an Amazon Q in Connect AI agent
+- **list_connect_ai_agents** - List native AI agents by assistant
+- **update_connect_ai_agent** - Publish or set defaults for native AI agents
 
 ### Appointments & Reminders
 - **schedule_reminder** - Schedule an outbound reminder call or SMS
@@ -83,16 +88,18 @@ Amazon Connect Instance
     └── Outbound Campaigns
 ```
 
-## Important: Two Types of "AI Agents"
+## Supported AI Agent Platforms
 
-This MCP server works with **Bedrock AgentCore** agents for autonomous AI conversations (outbound calls, appointment booking, etc.). These are different from Amazon Connect's native AI agents (Amazon Q in Connect), which are designed for agent assistance (answer recommendations, knowledge search, etc.) and are managed via the `qconnect` API.
+This MCP server supports **both** types of AWS AI agents:
 
-| Feature | Bedrock AgentCore | Amazon Connect Native AI |
-|---------|-------------------|-------------------------|
-| Use case | Autonomous voice/chat conversations | Agent assistance during contacts |
+| Feature | Bedrock AgentCore | Amazon Connect Native AI (Amazon Q) |
+|---------|-------------------|-------------------------------------|
+| Use case | Autonomous voice/chat conversations | Agent assistance during live contacts |
 | API | `bedrock-agent` | `qconnect` |
 | Handles full calls | Yes | No (assists human agents) |
 | Requires | Bedrock AgentCore Gateway | Amazon Q in Connect license |
+
+You can use both together: Bedrock AgentCore for outbound autonomous calls, and Connect native AI for helping human agents during inbound contacts.
 
 ## Requirements
 

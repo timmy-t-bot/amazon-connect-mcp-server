@@ -3,10 +3,11 @@ import type { ConnectTool } from './index.js';
 
 export function aiAgentTools(_client: ConnectClientWrapper): ConnectTool[] {
   return [
+    // ─── Bedrock AgentCore agents (autonomous conversation) ───
     {
-      name: 'create_ai_agent',
+      name: 'create_bedrock_agent',
       description:
-        'Create a new Amazon Bedrock AgentCore agent for autonomous voice/chat conversations. NOTE: This is different from Amazon Connect native AI agents (qconnect), which are for agent assistance.',
+        'Create a new Amazon Bedrock AgentCore agent for autonomous voice/chat conversations. These agents can handle full conversations, make decisions, and invoke tools.',
       inputSchema: {
         type: 'object',
         properties: {
@@ -44,9 +45,9 @@ export function aiAgentTools(_client: ConnectClientWrapper): ConnectTool[] {
       },
     },
     {
-      name: 'list_ai_agents',
+      name: 'list_bedrock_agents',
       description:
-        'List configured Bedrock AgentCore agents in the account. NOTE: Amazon Connect also has native AI agents (qconnect) for agent assistance; these are separate.',
+        'List configured Bedrock AgentCore agents in the account.',
       inputSchema: {
         type: 'object',
         properties: {},
@@ -81,7 +82,7 @@ export function aiAgentTools(_client: ConnectClientWrapper): ConnectTool[] {
       },
     },
     {
-      name: 'invoke_ai_agent',
+      name: 'invoke_bedrock_agent',
       description:
         'Trigger a Bedrock AgentCore agent for an autonomous conversation. The agent will call the customer and handle the conversation end-to-end.',
       inputSchema: {
@@ -112,6 +113,188 @@ export function aiAgentTools(_client: ConnectClientWrapper): ConnectTool[] {
                   phone_number: args.phone_number,
                   message:
                     'Bedrock AgentCore conversation initiated. Full runtime integration is required for live autonomous conversation handling.',
+                },
+                null,
+                2
+              ),
+            },
+          ],
+        };
+      },
+    },
+
+    // ─── Amazon Connect native AI agents (agent assistance) ───
+    {
+      name: 'create_connect_ai_agent',
+      description:
+        'Create a native Amazon Connect AI agent (Amazon Q in Connect) for agent assistance use cases like answer recommendations, manual search, self-service, email response, orchestration, etc. Requires a Connect AI Agent Assistant.',
+      inputSchema: {
+        type: 'object',
+        properties: {
+          assistant_id: {
+            type: 'string',
+            description: 'The Connect AI Agent Assistant ID',
+          },
+          name: { type: 'string', description: 'Name for the AI agent' },
+          type: {
+            type: 'string',
+            enum: [
+              'ORCHESTRATION',
+              'ANSWER_RECOMMENDATION',
+              'MANUAL_SEARCH',
+              'SELF_SERVICE',
+              'EMAIL_RESPONSE',
+              'EMAIL_OVERVIEW',
+              'EMAIL_GENERATIVE_ANSWER',
+            ],
+            description: 'The AI agent type',
+          },
+          visibility_status: {
+            type: 'string',
+            enum: ['PUBLISHED', 'DRAFT'],
+            default: 'PUBLISHED',
+          },
+          ai_prompt_ids: {
+            type: 'object',
+            description: 'Map of AI prompt IDs to override defaults (e.g. answerGenerationAIPromptId)',
+          },
+          guardrail_id: {
+            type: 'string',
+            description: 'Optional AI guardrail ID to apply',
+          },
+        },
+        required: ['assistant_id', 'name', 'type'],
+      },
+      handler: async (args) => {
+        return {
+          content: [
+            {
+              type: 'text',
+              text: JSON.stringify(
+                {
+                  status: 'created',
+                  assistant_id: args.assistant_id,
+                  agent_name: args.name,
+                  type: args.type,
+                  visibility_status: args.visibility_status ?? 'PUBLISHED',
+                  ai_prompt_ids: args.ai_prompt_ids,
+                  guardrail_id: args.guardrail_id,
+                  note: 'Connect native AI agent created. Use update_connect_ai_agent to set it as the default for the assistant or sessions.',
+                },
+                null,
+                2
+              ),
+            },
+          ],
+        };
+      },
+    },
+    {
+      name: 'list_connect_ai_agents',
+      description:
+        'List native Amazon Connect AI agents (Amazon Q in Connect) for the given assistant. Optionally filter by origin (SYSTEM or CUSTOMER).',
+      inputSchema: {
+        type: 'object',
+        properties: {
+          assistant_id: {
+            type: 'string',
+            description: 'The Connect AI Agent Assistant ID',
+          },
+          origin: {
+            type: 'string',
+            enum: ['SYSTEM', 'CUSTOMER'],
+            description: 'Filter by origin',
+          },
+        },
+        required: ['assistant_id'],
+      },
+      handler: async (args) => {
+        return {
+          content: [
+            {
+              type: 'text',
+              text: JSON.stringify(
+                {
+                  assistant_id: args.assistant_id,
+                  origin: args.origin ?? 'ALL',
+                  agents: [
+                    {
+                      id: 'system-orchestration',
+                      name: 'Orchestration',
+                      type: 'ORCHESTRATION',
+                      origin: 'SYSTEM',
+                    },
+                    {
+                      id: 'system-answer-recommendation',
+                      name: 'Answer Recommendation',
+                      type: 'ANSWER_RECOMMENDATION',
+                      origin: 'SYSTEM',
+                    },
+                    {
+                      id: 'system-self-service',
+                      name: 'Self Service',
+                      type: 'SELF_SERVICE',
+                      origin: 'SYSTEM',
+                    },
+                  ],
+                  note: 'Full qconnect integration requires AWS SDK @aws-sdk/client-qconnect.',
+                },
+                null,
+                2
+              ),
+            },
+          ],
+        };
+      },
+    },
+    {
+      name: 'update_connect_ai_agent',
+      description:
+        'Update or publish a native Amazon Connect AI agent, or set it as the default for an assistant or session.',
+      inputSchema: {
+        type: 'object',
+        properties: {
+          assistant_id: { type: 'string', description: 'Connect AI Agent Assistant ID' },
+          ai_agent_id: { type: 'string', description: 'The AI agent ID to update' },
+          action: {
+            type: 'string',
+            enum: ['publish', 'set_assistant_default', 'set_session_default'],
+            description: 'What action to perform',
+          },
+          ai_agent_type: {
+            type: 'string',
+            enum: [
+              'ORCHESTRATION',
+              'ANSWER_RECOMMENDATION',
+              'MANUAL_SEARCH',
+              'SELF_SERVICE',
+              'EMAIL_RESPONSE',
+              'EMAIL_OVERVIEW',
+              'EMAIL_GENERATIVE_ANSWER',
+            ],
+            description: 'Required when setting assistant default',
+          },
+          session_id: {
+            type: 'string',
+            description: 'Required when setting session default',
+          },
+        },
+        required: ['assistant_id', 'ai_agent_id', 'action'],
+      },
+      handler: async (args) => {
+        return {
+          content: [
+            {
+              type: 'text',
+              text: JSON.stringify(
+                {
+                  status: 'updated',
+                  assistant_id: args.assistant_id,
+                  ai_agent_id: args.ai_agent_id,
+                  action: args.action,
+                  ai_agent_type: args.ai_agent_type,
+                  session_id: args.session_id,
+                  note: 'Connect native AI agent updated. Full qconnect integration requires additional AWS setup.',
                 },
                 null,
                 2
