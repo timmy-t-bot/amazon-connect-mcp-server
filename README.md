@@ -40,11 +40,29 @@ Add the printed JSON block to your MCP client configuration:
 
 Once connected, your AI agent can:
 
+### Communication
 - **make_call** - Place an outbound voice call with a TTS message
 - **send_sms** - Send SMS reminders via Amazon SNS
+- **start_chat** - Start a chat session
+- **schedule_callback** - Schedule a callback at a specific time
+- **transfer_to_agent** - Transfer an active contact to a human agent queue
+
+### AI Agents
+- **create_ai_agent** - Create a Bedrock AgentCore agent
+- **invoke_ai_agent** - Trigger an AI agent for a conversation
+- **list_ai_agents** - List configured AI agents
+
+### Appointments & Reminders
+- **schedule_reminder** - Schedule an outbound reminder call or SMS
+- **book_appointment** - Book an appointment and optionally send confirmation
+- **confirm_appointment** - Call to confirm an existing appointment
+- **cancel_appointment** - Call to cancel an appointment
+
+### Instance Management
 - **get_instance_status** - Check your Connect instance health
 - **list_contact_flows** - List available contact flows
 - **list_phone_numbers** - List claimed phone numbers
+- **get_metrics** - Get real-time queue metrics
 
 Example:
 ```

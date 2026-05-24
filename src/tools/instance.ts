@@ -79,5 +79,51 @@ export function instanceTools(client: ConnectClientWrapper): ConnectTool[] {
         }
       },
     },
+    {
+      name: 'get_metrics',
+      description:
+        'Get real-time metrics for the Amazon Connect instance (queues, agents).',
+      inputSchema: {
+        type: 'object',
+        properties: {},
+      },
+      handler: async () => {
+        try {
+          const instances = await client.listInstances();
+          const instanceId = instances[0]?.Id ?? '';
+          const queues = await client.listQueues(instanceId);
+          return {
+            content: [
+              {
+                type: 'text',
+                text: JSON.stringify(
+                  {
+                    instance_id: instanceId,
+                    queues: queues.map((q) => ({
+                      id: q.Id,
+                      name: q.Name,
+                      arn: q.Arn,
+                    })),
+                    note: 'Real-time agent metrics require GetCurrentMetricData API calls.',
+                  },
+                  null,
+                  2
+                ),
+              },
+            ],
+          };
+        } catch (err) {
+          return {
+            content: [
+              {
+                type: 'text',
+                text: `Error getting metrics: ${(err as Error).message}`,
+              },
+            ],
+            isError: true,
+          };
+        }
+      },
+    },
   ];
 }

@@ -3,11 +3,10 @@ import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js'
 import {
   CallToolRequestSchema,
   ListToolsRequestSchema,
-  type Tool,
 } from '@modelcontextprotocol/sdk/types.js';
 import { loadConfig } from './config/loader.js';
 import { ConnectClientWrapper } from './connect/client.js';
-import { registerTools } from './tools/index.js';
+import { registerTools, type ConnectTool } from './tools/index.js';
 
 async function main() {
   const config = await loadConfig();
@@ -33,7 +32,7 @@ async function main() {
   );
 
   const tools = registerTools(connectClient);
-  const toolMap = new Map<string, Tool>(tools.map((t) => [t.name, t]));
+  const toolMap = new Map<string, ConnectTool>(tools.map((t) => [t.name, t]));
 
   server.setRequestHandler(ListToolsRequestSchema, async () => ({
     tools: tools.map(({ handler, ...tool }) => tool),
@@ -44,7 +43,7 @@ async function main() {
     if (!tool) {
       throw new Error(`Unknown tool: ${request.params.name}`);
     }
-    return tool.handler(request.params.arguments);
+    return tool.handler(request.params.arguments ?? {});
   });
 
   const transport = new StdioServerTransport();

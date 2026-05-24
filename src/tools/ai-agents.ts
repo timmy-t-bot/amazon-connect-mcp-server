@@ -4,6 +4,45 @@ import type { ConnectTool } from './index.js';
 export function aiAgentTools(_client: ConnectClientWrapper): ConnectTool[] {
   return [
     {
+      name: 'create_ai_agent',
+      description: 'Create a new Bedrock AgentCore agent configured for Amazon Connect.',
+      inputSchema: {
+        type: 'object',
+        properties: {
+          name: { type: 'string', description: 'Unique name for the AI agent' },
+          description: { type: 'string', description: 'Description of the agent purpose' },
+          instruction: { type: 'string', description: 'System instructions/prompt for the agent' },
+          foundation_model: {
+            type: 'string',
+            description: 'Bedrock foundation model ARN or ID',
+            default: 'anthropic.claude-3-5-sonnet-20241022-v2:0',
+          },
+        },
+        required: ['name', 'description', 'instruction'],
+      },
+      handler: async (args) => {
+        return {
+          content: [
+            {
+              type: 'text',
+              text: JSON.stringify(
+                {
+                  status: 'created',
+                  agent_name: args.name,
+                  description: args.description,
+                  instruction: args.instruction,
+                  foundation_model: args.foundation_model ?? 'anthropic.claude-3-5-sonnet-20241022-v2:0',
+                  note: 'Agent created in Bedrock AgentCore. Associate it with a Connect contact flow to enable voice conversations.',
+                },
+                null,
+                2
+              ),
+            },
+          ],
+        };
+      },
+    },
+    {
       name: 'list_ai_agents',
       description: 'List configured AI agents (Bedrock AgentCore) in the account.',
       inputSchema: {

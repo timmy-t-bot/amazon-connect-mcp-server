@@ -6,6 +6,7 @@ import {
   ListInstancesCommand,
   ListContactFlowsCommand,
   ListPhoneNumbersCommand,
+  DescribeInstanceCommand,
   type CreateInstanceCommandOutput,
 } from '@aws-sdk/client-connect';
 import { readFileSync } from 'fs';
@@ -30,7 +31,7 @@ export class ConnectProvisioner {
       const detail = await this.client.send(
         new DescribeInstanceCommand({ InstanceId: existing.Id })
       );
-      return { Instance: detail.Instance } as CreateInstanceCommandOutput;
+      return { Instance: detail.Instance } as unknown as CreateInstanceCommandOutput;
     }
 
     return this.client.send(
@@ -58,12 +59,11 @@ export class ConnectProvisioner {
     );
   }
 
-  async claimPhoneNumber(instanceId: string, countryCode = 'US') {
+  async claimPhoneNumber(instanceId: string, phoneNumber: string) {
     return this.client.send(
       new ClaimPhoneNumberCommand({
         TargetArn: `arn:aws:connect:*:*:instance/${instanceId}`,
-        PhoneNumberType: 'DID',
-        PhoneNumberCountryCode: countryCode,
+        PhoneNumber: phoneNumber,
       })
     );
   }

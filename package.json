@@ -2,6 +2,7 @@
   "name": "amazon-connect-mcp-server",
   "version": "0.1.0",
   "description": "MCP server for Amazon Connect - enable AI agents to make calls, send messages, and manage appointments",
+  "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "bin": {
@@ -42,8 +43,10 @@
     "zod": "^3.23.0"
   },
   "devDependencies": {
+    "@types/jest": "^30.0.0",
     "@types/node": "^20.0.0",
     "jest": "^29.0.0",
+    "ts-jest": "^29.4.11",
     "typescript": "^5.4.0"
   },
   "engines": {

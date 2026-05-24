@@ -1,6 +1,7 @@
 import {
   ConnectClient,
-  StartOutboundContactCommand,
+  StartOutboundVoiceContactCommand,
+  type StartOutboundVoiceContactCommandOutput,
   ListInstancesCommand,
   ListContactFlowsCommand,
   ListPhoneNumbersCommand,
@@ -26,14 +27,14 @@ export class ConnectClientWrapper {
     message: string;
     contactFlowId?: string;
     sourcePhoneNumber?: string;
-  }) {
+  }): Promise<StartOutboundVoiceContactCommandOutput> {
     const flowId = args.contactFlowId ?? this.config.contactFlows?.outboundReminder;
     const sourceNumber = args.sourcePhoneNumber ?? this.config.phoneNumbers?.outbound;
 
     if (!flowId) throw new Error('No contact flow ID provided or configured');
     if (!sourceNumber) throw new Error('No source phone number provided or configured');
 
-    const command = new StartOutboundContactCommand({
+    const command = new StartOutboundVoiceContactCommand({
       InstanceId: this.config.instanceId,
       ContactFlowId: flowId,
       DestinationPhoneNumber: args.phoneNumber,
