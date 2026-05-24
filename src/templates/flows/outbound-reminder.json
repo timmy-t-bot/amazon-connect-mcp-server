@@ -1,0 +1,36 @@
+{
+  "Version": "2019-10-30",
+  "StartAction": "SetVoice",
+  "Actions": [
+    {
+      "Identifier": "SetVoice",
+      "Type": "SetVoice",
+      "Parameters": {
+        "GlobalVoice": {
+          "Language": "en-US",
+          "Voice": "Joanna"
+        }
+      },
+      "Transitions": {
+        "NextAction": "PlayPrompt"
+      }
+    },
+    {
+      "Identifier": "PlayPrompt",
+      "Type": "MessageParticipant",
+      "Parameters": {
+        "Text": "$.Attributes.ReminderMessage",
+        "TextToSpeechType": "text"
+      },
+      "Transitions": {
+        "NextAction": "Disconnect"
+      }
+    },
+    {
+      "Identifier": "Disconnect",
+      "Type": "DisconnectParticipant",
+      "Parameters": {},
+      "Transitions": {}
+    }
+  ]
+}

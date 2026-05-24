@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "amazon-connect": {
+      "command": "npx",
+      "args": ["amazon-connect-mcp-server", "serve"],
+      "env": {
+        "AWS_PROFILE": "{{AWS_PROFILE}}",
+        "AWS_REGION": "{{AWS_REGION}}"
+      }
+    }
+  }
+}
