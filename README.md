@@ -90,16 +90,17 @@ Amazon Connect Instance
 
 ## Supported AI Agent Platforms
 
-This MCP server supports **both** types of AWS AI agents:
+This MCP server supports **both** types of AWS AI agents, and they can work together:
 
 | Feature | Bedrock AgentCore | Amazon Connect Native AI (Amazon Q) |
 |---------|-------------------|-------------------------------------|
-| Use case | Autonomous voice/chat conversations | Agent assistance during live contacts |
+| Use case | Autonomous voice/chat conversations, tool use | Speech-to-speech, self-service, agent assistance, orchestration |
 | API | `bedrock-agent` | `qconnect` |
-| Handles full calls | Yes | No (assists human agents) |
+| Handles full calls | Yes | Yes (speech-to-speech, self-service) |
+| 3rd party agents | Yes (native) | Yes (via Bedrock AgentCore Gateways) |
 | Requires | Bedrock AgentCore Gateway | Amazon Q in Connect license |
 
-You can use both together: Bedrock AgentCore for outbound autonomous calls, and Connect native AI for helping human agents during inbound contacts.
+**Key insight:** Amazon Q in Connect is not just for agent assistance. It supports speech-to-speech self-service conversations (no human agent needed) and can invoke 3rd party Bedrock AgentCore agents via Gateways. Use Bedrock AgentCore for complex tool-based workflows, and Connect native AI for speech-to-speech and self-service use cases.
 
 ## Requirements
 

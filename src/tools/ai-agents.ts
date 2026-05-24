@@ -127,7 +127,7 @@ export function aiAgentTools(_client: ConnectClientWrapper): ConnectTool[] {
     {
       name: 'create_connect_ai_agent',
       description:
-        'Create a native Amazon Connect AI agent (Amazon Q in Connect) for agent assistance use cases like answer recommendations, manual search, self-service, email response, orchestration, etc. Requires a Connect AI Agent Assistant.',
+        'Create a native Amazon Connect AI agent (Amazon Q in Connect). Supports agent assistance (answer recommendations, manual search), self-service, email response, orchestration, and speech-to-speech conversations. Also supports Bedrock AgentCore 3rd party agents via Gateways.',
       inputSchema: {
         type: 'object',
         properties: {
@@ -192,7 +192,7 @@ export function aiAgentTools(_client: ConnectClientWrapper): ConnectTool[] {
     {
       name: 'list_connect_ai_agents',
       description:
-        'List native Amazon Connect AI agents (Amazon Q in Connect) for the given assistant. Optionally filter by origin (SYSTEM or CUSTOMER).',
+        'List Amazon Connect AI agents (Amazon Q in Connect) for the given assistant. Covers speech-to-speech, self-service, agent assistance, orchestration, and Bedrock AgentCore 3rd party agents via Gateways. Optionally filter by origin (SYSTEM or CUSTOMER).',
       inputSchema: {
         type: 'object',
         properties: {
@@ -250,7 +250,7 @@ export function aiAgentTools(_client: ConnectClientWrapper): ConnectTool[] {
     {
       name: 'update_connect_ai_agent',
       description:
-        'Update or publish a native Amazon Connect AI agent, or set it as the default for an assistant or session.',
+        'Update, publish, or set defaults for an Amazon Connect AI agent (Amazon Q in Connect). Use this to deploy speech-to-speech agents, self-service agents, or Bedrock AgentCore Gateway integrations.',
       inputSchema: {
         type: 'object',
         properties: {
