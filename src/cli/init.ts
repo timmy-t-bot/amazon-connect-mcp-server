@@ -68,7 +68,9 @@ program
     await saveConfig(config);
     spinner.succeed('Configuration saved to ~/.amazon-connect-mcp/config.json');
 
-    console.log('\nAdd this to your MCP client config:\n');
+    console.log('\nRun the server locally with:\n');
+    console.log(`  node dist/server.js`);
+    console.log('\nOr after publishing to npm:\n');
     console.log(JSON.stringify(
       {
         mcpServers: {
@@ -87,4 +89,12 @@ program
     ));
   });
 
-program.parse();
+program
+  .command('serve')
+  .description('Start the MCP server (stdio transport)')
+  .action(async () => {
+    const { main } = await import('../index.js');
+    await main();
+  });
+
+program.parse(process.argv);

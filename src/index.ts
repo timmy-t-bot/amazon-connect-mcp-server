@@ -8,7 +8,7 @@ import { loadConfig } from './config/loader.js';
 import { ConnectClientWrapper } from './connect/client.js';
 import { registerTools } from './tools/index.js';
 
-async function main() {
+export async function main() {
   const config = await loadConfig();
   if (!config) {
     console.error(
@@ -49,7 +49,3 @@ async function main() {
   await server.connect(transport);
 }
 
-main().catch((err) => {
-  console.error('Fatal error:', err);
-  process.exit(1);
-});
