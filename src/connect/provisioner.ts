@@ -7,13 +7,18 @@ import {
   ListContactFlowsCommand,
   ListPhoneNumbersCommand,
   DescribeInstanceCommand,
-  type CreateInstanceCommandOutput,
 } from '@aws-sdk/client-connect';
 import { readFileSync } from 'fs';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
+
+export interface InstanceInfo {
+  Id: string;
+  InstanceAlias?: string;
+  Arn?: string;
+}
 
 export class ConnectProvisioner {
   private client: ConnectClient;
@@ -22,7 +27,7 @@ export class ConnectProvisioner {
     this.client = new ConnectClient({ region });
   }
 
-  async findOrCreateInstance(alias: string): Promise<CreateInstanceCommandOutput> {
+  async findOrCreateInstance(alias: string): Promise<InstanceInfo> {
     const list = await this.client.send(new ListInstancesCommand({}));
     const existing = list.InstanceSummaryList?.find(
       (i) => i.InstanceAlias === alias
@@ -31,10 +36,14 @@ export class ConnectProvisioner {
       const detail = await this.client.send(
         new DescribeInstanceCommand({ InstanceId: existing.Id })
       );
-      return { Instance: detail.Instance } as unknown as CreateInstanceCommandOutput;
+      return {
+        Id: existing.Id,
+        InstanceAlias: detail.Instance?.InstanceAlias ?? alias,
+        Arn: detail.Instance?.Arn,
+      };
     }
 
-    return this.client.send(
+    const created = await this.client.send(
       new CreateInstanceCommand({
         IdentityManagementType: 'CONNECT_MANAGED',
         InstanceAlias: alias,
@@ -42,6 +51,11 @@ export class ConnectProvisioner {
         OutboundCallsEnabled: true,
       })
     );
+    return {
+      Id: created.Id!,
+      InstanceAlias: alias,
+      Arn: created.Arn,
+    };
   }
 
   async createOutboundReminderFlow(instanceId: string) {

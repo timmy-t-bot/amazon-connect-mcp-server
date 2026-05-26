@@ -1,10 +1,10 @@
 #!/usr/bin/env node
 import { Command } from 'commander';
 import { STSClient, GetCallerIdentityCommand } from '@aws-sdk/client-sts';
-import { ConnectClient, ListInstancesCommand } from '@aws-sdk/client-connect';
 import ora from 'ora';
 import { saveConfig } from '../config/loader.js';
 import { ServerConfigSchema } from '../config/schema.js';
+import { ConnectProvisioner } from '../connect/provisioner.js';
 
 const program = new Command();
 
@@ -22,9 +22,7 @@ program
   .action(async (options) => {
     const spinner = ora('Validating AWS credentials...').start();
     try {
-      const sts = new STSClient({
-        region: options.region,
-      });
+      const sts = new STSClient({ region: options.region });
       const identity = await sts.send(new GetCallerIdentityCommand({}));
       spinner.succeed(`Authenticated as ${identity.Arn}`);
     } catch (err) {
@@ -32,61 +30,84 @@ program
       process.exit(1);
     }
 
-    spinner.start('Looking for Amazon Connect instances...');
-    const connect = new ConnectClient({ region: options.region });
-    const instances = await connect.send(new ListInstancesCommand({}));
-    spinner.stop();
+    const provisioner = new ConnectProvisioner(options.region);
 
-    let instanceId = '';
-    if (instances.InstanceSummaryList && instances.InstanceSummaryList.length > 0) {
-      console.log(`Found ${instances.InstanceSummaryList.length} instance(s):`);
-      instances.InstanceSummaryList.forEach((inst, i) => {
-        console.log(`  ${i + 1}. ${inst.InstanceAlias} (${inst.Id})`);
-      });
-      instanceId = instances.InstanceSummaryList[0].Id!;
-    } else {
-      console.log('No existing Connect instances found.');
-      if (!options.alias) {
-        console.error('Provide --alias to create a new instance.');
+    spinner.start('Looking for Amazon Connect instances...');
+    let instanceId: string | undefined;
+    try {
+      const result = await provisioner.findOrCreateInstance(
+        options.alias ?? 'amazon-connect-mcp'
+      );
+      instanceId = result.Id;
+      if (instanceId) {
+        spinner.succeed(
+          `Using Connect instance: ${result.InstanceAlias} (${instanceId})`
+        );
+      } else {
+        spinner.fail('Instance creation did not return an ID.');
         process.exit(1);
       }
-      spinner.start('Creating Connect instance...');
-      console.log('(Instance creation via CLI is not yet implemented. Use AWS Console or CloudFormation.)');
-      spinner.fail('Please create an instance manually and re-run init.');
+    } catch (err) {
+      spinner.fail(`Failed to find or create instance: ${(err as Error).message}`);
       process.exit(1);
     }
 
+    spinner.start('Checking existing resources...');
+    const resources = await provisioner.getExistingResources(instanceId);
+    spinner.succeed(
+      `Found ${resources.flows.length} contact flow(s), ${resources.numbers.length} phone number(s)`
+    );
+
+    let contactFlowId = '';
+    if (resources.flows.length === 0) {
+      spinner.start('Creating outbound reminder contact flow...');
+      try {
+        const flow = await provisioner.createOutboundReminderFlow(instanceId);
+        contactFlowId = flow.ContactFlowId ?? '';
+        spinner.succeed(`Created contact flow: ${contactFlowId}`);
+      } catch (err) {
+        spinner.warn(`Could not create contact flow: ${(err as Error).message}`);
+      }
+    } else {
+      const outboundFlow = resources.flows.find(
+        (f) => f.Name === 'OutboundReminder'
+      );
+      contactFlowId = outboundFlow?.Id ?? resources.flows[0].Id ?? '';
+    }
+
+    spinner.start('Saving configuration...');
     const config = ServerConfigSchema.parse({
       aws: {
         instanceId,
         region: options.region,
         profile: options.profile,
+        contactFlows: contactFlowId ? { outboundReminder: contactFlowId } : undefined,
       },
     });
-
-    spinner.start('Saving configuration...');
     await saveConfig(config);
     spinner.succeed('Configuration saved to ~/.amazon-connect-mcp/config.json');
 
     console.log('\nRun the server locally with:\n');
-    console.log(`  node dist/server.js`);
-    console.log('\nOr after publishing to npm:\n');
-    console.log(JSON.stringify(
-      {
-        mcpServers: {
-          'amazon-connect': {
-            command: 'npx',
-            args: ['amazon-connect-mcp-server', 'serve'],
-            env: {
-              AWS_PROFILE: options.profile,
-              AWS_REGION: options.region,
+    console.log(`  node dist/cli/init.js serve`);
+    console.log('\nOr after publishing to npm, add this to your MCP client config:\n');
+    console.log(
+      JSON.stringify(
+        {
+          mcpServers: {
+            'amazon-connect': {
+              command: 'npx',
+              args: ['amazon-connect-mcp-server', 'serve'],
+              env: {
+                AWS_PROFILE: options.profile,
+                AWS_REGION: options.region,
+              },
             },
           },
         },
-      },
-      null,
-      2
-    ));
+        null,
+        2
+      )
+    );
   });
 
 program
